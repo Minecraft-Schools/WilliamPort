@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | William Port</title>
+    <script>
+        // Logout function
+        function logout() {
+            // Send a POST request to the server to log the user out
+            fetch('/api/logout', {
+                method: 'POST'
+            })
+            .then(response => {
+                // If the logout was successful, redirect the user to the login page
+                if (response.ok) {
+                    window.location.href = '/signin';
+                }
+            })
+            .catch(error => {
+                console.error('Error logging out:', error);
+            });
+        };
+
+        // Delete User function
+        function deleteUser() {
+            // Send a POST request to the server to delete the user
+            fetch('/api/delete-user', {
+                method: 'DELETE'
+            })
+            .then(response => {
+                // If the deletion was successful, redirect the user to the login page
+                if (response.ok) {
+                    window.location.href = '/signin';
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting user:', error);
+            });
+        };
+
+        function openOwnerPanel() {
+            document.getElementById('ownerpanel').classList.remove('hidden');
+        }
+
+        function closeOwnerPanel() {
+            document.getElementById('ownerpanel').classList.add('hidden');
+        }
+
+        function getIdFromUsername(username) {
+            fetch('/api/get-userid-from-username?username=' + username, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to fetch user ID');
+                }
+            })
+            .then(data => {
+                console.log(data["userid"]);
+                return data["userid"];
+            })
+            .catch(error => {
+                console.error('Error fetching user ID:', error);
+            });
+        }
+
+        function deletePerson(personId) {
+            // Send a POST request to the server to delete the user
+            fetch('/api/delete-user?action=deleteperson&personId=' + personId, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                // If the deletion was successful, pop up a success message
+                if (response.ok) {
+                    alert('Person deleted successfully!');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting user:', error);
+            });
+        }
+
+        function askDeletePerson(personId) {
+            username = prompt('Please enter the username of the person you want to delete:');
+            if (username) {
+                if (confirm('Are you sure you want to delete this person?')) {
+                    getIdFromUsername(username).then(userid => {
+                        deletePerson(userid);
+                    });
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+        p {
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        a:visited {
+            color: #0056b3;
+        }
+        a:visited:hover {
+            text-decoration: underline;
+        }
+        .logout {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: auto;
+        }
+        .logout button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-left: 10px;
+            padding: 10px 20px;
+        }
+        .deleteUser {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: auto;
+        }
+        .deleteUser button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-left: 10px;
+            padding: 10px 20px;
+        }
+        .hide {
+            display: none;
+        }
+        .browse {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: auto;
+        }
+        .browse button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-left: 10px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to your dashboard</h1>
+    <p>This website is new, so report bugs to discord: <href></href></p>
+
+    <div id="ownerpanel" class="ownerPanel hidden">
+        <h2>Owner Panel</h2>
+        <p>This is the owner panel.</p>
+        <button class="ownercontrolbutton" onclick="askDeletePerson()">Delete User</button>
+    </div>
+
+    <button class="logout" onclick="logout()">Logout</button>
+    <button class="ownerbutton" onclick="openOwnerPanel()">Owner Dashboard</button>
+    <button class="browse" onclick="window.location.href='/games/emulators'">Browse</button>
+</body>
+</html>

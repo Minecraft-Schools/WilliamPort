@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock</title>
+    <style>
+        .clock {
+            height: 3rem;
+            width: 3rem;
+            background: oklch(20% 0 0);
+            border: 0.25rem solid oklch(30% 0 0);
+            position: relative;
+            border-radius: 1.5rem;
+        }
+        .darkclock {
+            background: oklch(20% 0 0);
+            border: 0.25rem solid oklch(30% 0 0);
+        }
+        .lightclock {
+            background: oklch(88.224% 0.0001 271.152);
+            border: 0.25rem solid oklch(67.968% 0.00008 271.152);
+        }
+        .digit {
+            display: grid;
+            grid-template:
+                repeat(6, 1fr) /
+                repeat(4, 1fr);
+            gap: 0.125rem;
+            position: relative;
+            height: auto;
+            width: 14vw;
+        }
+
+        .hand {
+            height: 0.1875rem;
+            width: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            translate: 0% -50%;
+            transform-origin: center left;
+            transition: rotate 250ms;
+        }
+
+        .darkhand {
+            background: oklch(0.9475 0.1916 119.15);
+        }
+
+        .lighthand {
+            background: oklch(59.111% 0.13525 239.934);
+        }
+
+        .clocksection {
+            display: flex;
+            gap: 2rem;
+            position: relative;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+
+        .fullclock {
+            display: flex;
+            gap: 3rem;
+            position: relative;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            /* Center the clock horizontally */
+            align-items: center;
+            /* Center the clock vertically */
+            height: 100vh;
+            /* Full height of the viewport */
+            width: 98%;
+            margin: 0;
+            /* Remove default body margin */
+        }
+
+        .darkbody {
+            background-color: rgb(80, 80, 80)
+        }
+
+        .lightbody {
+            background-color: rgb(175, 175, 175)
+        }
+    </style>
+</head>
+<body class="darkbody">
+    <div id="orig" class="clock darkclock">
+        <div class="hand darkhand"></div>
+        <div class="hand darkhand"></div>
+    </div>
+    <div id="fullclock" class="fullclock">
+        <div class="clocksection" id="hoursegment"></div>
+        <div class="clocksection" id="minutesegment"></div>
+        <div class="clocksection" id="secondsegment"></div>
+    </div>
+    <script>
+        const angles = {
+            "⌜": [0, 90],
+            "⌝": [90, 180],
+            "⌟": [180, 270],
+            "⌞": [0, 270],
+            "-": [0, 180],
+            "|": [90, 270],
+            " ": [135, 135]
+        }
+        const numbers = {
+            "0": [
+                "⌜", "-", "-", "⌝",
+                "|", "⌜", "⌝", "|",
+                "|", "|", "|", "|",
+                "|", "|", "|", "|",
+                "|", "⌞", "⌟", "|",
+                "⌞", "-", "-", "⌟"
+            ],
+            "1": [
+                "⌜", "-", "⌝", " ",
+                "⌞", "⌝", "|", " ",
+                " ", "|", "|", " ",
+                " ", "|", "|", " ",
+                "⌜", "⌟", "⌞", "⌝",
+                "⌞", "-", "-", "⌟"
+            ],
+            "2": [
+                "⌜", "-", "-", "⌝",
+                "⌞", "-", "⌝", "|",
+                "⌜", "-", "⌟", "|",
+                "|", "⌜", "-", "⌟",
+                "|", "⌞", "-", "⌝",
+                "⌞", "-", "-", "⌟"
+            ],
+            "3": [
+                "⌜", "-", "-", "⌝",
+                "⌞", "-", "⌝", "|",
+                " ", "⌜", "⌟", "|",
+                " ", "⌞", "⌝", "|",
+                "⌜", "-", "⌟", "|",
+                "⌞", "-", "-", "⌟"
+            ],
+            "4": [
+                "⌜", "⌝", "⌜", "⌝",
+                "|", "|", "|", "|",
+                "|", "⌞", "⌟", "|",
+                "⌞", "-", "⌝", "|",
+                " ", " ", "|", "|",
+                " ", " ", "⌞", "⌟"
+            ],
+            "5": [
+                "⌜", "-", "-", "⌝",
+                "|", "⌜", "-", "⌟",
+                "|", "⌞", "-", "⌝",
+                "⌞", "-", "⌝", "|",
+                "⌜", "-", "⌟", "|",
+                "⌞", "-", "-", "⌟"
+            ],
+            "6": [
+                "⌜", "-", "-", "⌝",
+                "|", "⌜", "-", "⌟",
+                "|", "⌞", "-", "⌝",
+                "|", "⌜", "⌝", "|",
+                "|", "⌞", "⌟", "|",
+                "⌞", "-", "-", "⌟"
+            ],
+            "7": [
+                "⌜", "-", "-", "⌝",
+                "⌞", "-", "⌝", "|",
+                " ", " ", "|", "|",
+                " ", " ", "|", "|",
+                " ", " ", "|", "|",
+                " ", " ", "⌞", "⌟"
+            ],
+            "8": [
+                "⌜", "-", "-", "⌝",
+                "|", "⌜", "⌝", "|",
+                "|", "⌞", "⌟", "|",
+                "|", "⌜", "⌝", "|",
+                "|", "⌞", "⌟", "|",
+                "⌞", "-", "-", "⌟"
+            ],
+            "9": [
+                "⌜", "-", "-", "⌝",
+                "|", "⌜", "⌝", "|",
+                "|", "⌞", "⌟", "|",
+                "⌞", "-", "⌝", "|",
+                "⌜", "-", "⌟", "|",
+                "⌞", "-", "-", "⌟"
+            ]
+        }
+        function createDigit(node, segmentSection) {
+            const digit = document.createElement("div")
+            digit.classList.add("digit")
+            for (let i = 0; i < 24; i++) {
+                digit.appendChild(node.cloneNode(true))
+            }
+            document.getElementById(segmentSection).appendChild(digit)
+            return digit
+        }
+        function updateDigit(digit, number) {
+            let i = 0
+            for (const cell of digit.children) {
+                hands = cell.children
+                angle = angles[numbers[number][i]]
+                hands[0].style.rotate = angle[0] + 'deg'
+                hands[1].style.rotate = angle[1] + 'deg'
+                i = i + 1
+            }
+        }
+        function updateTime(times) {
+            updateDigit(hourA, times[0])
+            updateDigit(hourB, times[1])
+            updateDigit(minuteA, times[2])
+            updateDigit(minuteB, times[3])
+            updateDigit(secondA, times[4])
+            updateDigit(secondB, times[5])
+        }
+        function run() {
+            const node = document.getElementById("orig");
+            node.removeAttribute("id")
+            node.remove()
+
+            hourA = createDigit(node, 'hoursegment')
+            hourB = createDigit(node, 'hoursegment')
+            minuteA = createDigit(node, 'minutesegment')
+            minuteB = createDigit(node, 'minutesegment')
+            secondA = createDigit(node, 'secondsegment')
+            secondB = createDigit(node, 'secondsegment')
+            let ampm;
+            let ampmB;
+            ampm = 'PM'
+            setInterval(() => {
+                const times = new Date()
+                    .toLocaleTimeString("en-US", {
+                        hour12: true,
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit"
+                    })
+                    .replace(/\D/g, "")
+                    .split("");
+                updateTime(times)
+                const hours = new Date().getHours()
+                if (hours >= 12) {
+                    ampmB = 'PM';
+                } else {
+                    ampmB = 'AM';
+                }
+                if (ampm != ampmB) {
+                    ampm = ampmB
+                    let clocks;
+                    clocks = document.getElementsByClassName('clock')
+                    let body;
+                    body = document.body
+                    let hands = document.getElementsByClassName('hand')
+                    if (ampm == 'AM') {
+                        body.classList.replace('darkbody', 'lightbody')
+                        for (let i = 0; i < clocks.length; i++) {
+                            clocks[i].classList.replace('darkclock', 'lightclock')
+                        }
+                        for (let i = 0; i < hands.length; i++) {
+                            hands[i].classList.replace('darkhand', 'lighthand')
+                        }
+                    } else {
+                        body.classList.replace('lightbody', 'darkbody')
+                        for (let i = 0; i < clocks.length; i++) {
+                            clocks[i].classList.replace('lightclock', 'darkclock')
+                        }
+                        for (let i = 0; i < hands.length; i++) {
+                            hands[i].classList.replace('lighthands', 'darkhands')
+                        }
+                    }
+                }
+            }, 1000);
+        }
+        window.onload = run;
+    </script>
+</body>
+
+</html>
