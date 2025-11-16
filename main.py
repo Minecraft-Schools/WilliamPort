@@ -14,13 +14,11 @@
 
 import socket
 import json
-import threading
 import base64
 import os
 import datetime
 from datetime import timezone
 import hmac, hashlib
-import credentialogger
 import random
 
 class ValuedUrl:
